@@ -1,0 +1,13 @@
+1. Which issues were the easiest to fix, and which were the hardest? Why?
+The easiest issues to fix were the Flake8 formatting errors (like E302 for blank lines or E501 for line lengths) and Pylint's outdated % string formatting warnings. These just required simple structural adjustments and syntax swapping without altering the program's logic.
+
+The hardest issues were the Bandit eval() security vulnerability and Pylint's mutable default argument (receipts=[]). Fixing the eval() issue required redesigning the discount logic to safely map string inputs to mathematical operations. Fixing the mutable default required understanding how Python evaluates default parameters at function definition rather than execution time, which necessitated moving the list initialization inside the function body.
+
+2. Did the static analysis tools report any false positives? If so, describe one example.
+Yes, Bandit flagged a [B311:blacklist] warning on line 21, stating that standard pseudo-random generators (random.randint) are not suitable for security or cryptographic purposes. This was a false positive because the random number was only being used to generate a generic receipt ID for a small retail shop, which does not require cryptographic-level security. We safely bypassed this warning by appending # nosec B311 to the line.
+
+3. How would you integrate static analysis tools into your actual software development workflow?
+I would integrate these tools directly into my VS Code workspace using extensions (like the official Pylint and Flake8 extensions) so they can lint the code locally and highlight errors in real-time as I type. Additionally, for team repositories, I would add them to a pre-commit hook or a CI/CD pipeline to ensure that any code failing a Bandit security scan or dropping below a specific Pylint score is automatically blocked from being merged.
+
+4. What tangible improvements did you observe in the code quality, readability, or potential robustness after applying the fixes?
+The code became significantly more robust after replacing the broad except: block with specific KeyError and ValueError handlers, which prevents the system from silently ignoring critical runtime crashes. Security was locked down by removing the dangerous eval() execution. Finally, readability improved drastically; adding explicit docstrings clarified function purposes, enforcing PEP 8 spacing made the structure uniform, and swapping to f-strings made the string interpolations much cleaner to read.
